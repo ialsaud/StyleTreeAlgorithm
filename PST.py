@@ -1,4 +1,4 @@
-import Node
+from Node import Node
 import urllib2
 from lxml import html
 
@@ -20,12 +20,8 @@ class PST():
             return Node(root.tag, root.attrib, children)
         return None
 
-    # child = node()
-    # child.tag = tag
-    # child.attrs = attrs Salman New
-    # #node children is a set.
-    # child.children = children
-    # self.child = child
+    def __repr__(self):
+        #salman write this one.
 
 def print_root(root):
     if root is not None:
