@@ -2,6 +2,8 @@ from Node import Node
 import urllib2
 from lxml import html
 
+import json
+
 
 # This module contains the building blocks of the page Style Tree.
 class PST():
@@ -20,8 +22,12 @@ class PST():
             return Node(root.tag, root.attrib, children)
         return None
 
+    def get_dict(self):
+        return self.node.get_dict()
+
     def __repr__(self):
-        #salman write this one.
+        return self.get_dict().__repr__()
+
 
 def print_root(root):
     if root is not None:
@@ -31,6 +37,9 @@ def print_root(root):
 
 
 x = PST('http://www.securityfocus.com/bid/83265')
+
+print json.dumps(x.get_dict(), indent=2)
+
 #print_root(x.root)
 #print x.root.text_content
 
