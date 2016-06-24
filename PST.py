@@ -1,45 +1,59 @@
 from Node import Node
 import urllib2
-from lxml import html
+from lxml.html import fromstring
 
 
 # This module contains the building blocks of the page Style Tree.
 class PST():
     def __init__(self, url):
         page_string = urllib2.urlopen(url)
-        root = html.fromstring(page_string.read())
+        root = fromstring(page_string.read())
+        self.root = root
         self.node = self.build(root)
 
+
     def build(self, root):
-        if root is not None:
-            children = set()
-            for e in root:
-                new_child = self.build(e)
-                if new_child is not None:
-                    children.add(new_child)
-            return Node(root.tag, root.attrib, children)
-        return None
-
-    def __repr__(self):
-        #salman write this one.
-
-def print_root(root):
-    if root is not None:
+        children = set()
         for e in root:
-            print  e.tag
-            print_root(e)
-
+            new_child = self.build(e)
+            children.add(new_child)
+        children = (1,children)
+        return Node(root.tag, root.attrib, children)
 
 x = PST('http://www.securityfocus.com/bid/83265')
-#print_root(x.root)
-#print x.root.text_content
+
+print x.node
 
 
-#SKRATCH
-#from lxml import html
-#import urllib2
 
-    #A = urllib2.urlopen("url")
-    #root = html.from_string(A.read())
-    #
-    #root.text_content #prints the whole page!
+
+
+
+
+
+
+
+
+
+
+
+"""
+        #SKRATCH
+        #from lxml import html
+        #import urllib2
+
+        #A = urllib2.urlopen("url")
+        #root = html.from_string(A.read())
+        #root.text_content #prints the whole pag
+"""
+
+"""
+        import inspect
+        print inspect.getargspec(fromstring)
+        shows the arguments of a method
+        """
+
+"""
+        dir(fromstring)
+        shows the methods
+"""
