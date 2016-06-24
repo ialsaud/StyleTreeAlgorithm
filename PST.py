@@ -10,12 +10,11 @@ class PST():
         root = html.fromstring(page_string.read())
         self.node = self.build(root)
 
-
     def build(self, root):
         if root is not None:
             children = set()
             for e in root:
-                new_child = build(e)
+                new_child = self.build(e)
                 if new_child is not None:
                     children.add(new_child)
             return Node(root.tag, root.attrib, children)
