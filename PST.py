@@ -23,7 +23,7 @@ class PST():
 
     # child = node()
     # child.tag = tag
-    # child.attrs = attrs
+    # child.attrs = attrs  HELLEPPP
     # #node children is a set.
     # child.children = children
     # self.child = child
