@@ -12,7 +12,7 @@ class Node():
         return ret
 
     def __cmp__(self, other):
-        if
+        assert Ture
 
     def print_node(self):
         return "(%s)" % (self.tag)
