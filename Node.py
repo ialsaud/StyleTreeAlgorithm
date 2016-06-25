@@ -11,8 +11,8 @@ class Node():
             ret += child.__repr__(level+1)
         return ret
 
+    def __cmp__(self, other):
+        if
+
     def print_node(self):
-        l = []
-        for child in list(self.children[1]):
-            l.append(child.tag)
         return "(%s)" % (self.tag)
