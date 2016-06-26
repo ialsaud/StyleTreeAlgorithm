@@ -27,7 +27,6 @@ def increment(children_set):
 
 
 def comparator(root1, root2):
-
     if  root1.children == root2.children_set2: ## TODO change compare method
         increment(root1.children)
     elif root1.children != root2.children:
