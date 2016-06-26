@@ -7,11 +7,10 @@ from lxml import html
 class PST():
     def __init__(self, url):
         page_string = urllib2.urlopen(url)
-        root = html.fromstring(page_string.read()) ##this is uniform
+        root = html.fromstring(page_string.read()) # this is uniform
         self.root = self.build(root)
 
-
-    def build(self, root): ##TODO we need to make this uniform\\ all good
+    def build(self, root): # TODO we need to make this uniform\\ all good
         children = []
         for e in root:
             new_child = self.build(e)
@@ -20,15 +19,12 @@ class PST():
         return Node(root.tag, root.attrib, children_)
 
 
-
 def increment(children_set):
     children_set[0] += 1
 
 
-
 def comparator(root1, root2):
-
-    if  root1.children == root2.children_set2: ## TODO change compare method
+    if root1.children == root2.children_set2: ## TODO change compare method
         increment(root1.children)
     elif root1.children != root2.children:
         root1.children = [root1.children, root2.children] ## does this make a copy of children_set2
@@ -38,18 +34,28 @@ def comparator(root1, root2):
 
 
 x = PST('http://www.securityfocus.com/bid/83265')
+x2 = PST('http://www.securityfocus.com/bid/83265')
 y = PST('http://www.securityfocus.com/bid/77216')
 z = PST('http://www.securityfocus.com/bid/69077')
 
-print (x.root)
-
-comparator(x.root,y.root)
-
-
-print x.root
+print x.root == y.root ## yeap it works.
 
 
 
+
+# print (x.root)
+#
+# comparator(x.root,y.root)
+#
+#
+# print x.root
+
+
+
+
+
+
+# ==== Scratch =====
 
 """
         #SKRATCH
