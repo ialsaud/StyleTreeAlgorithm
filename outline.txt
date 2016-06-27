@@ -1,0 +1,47 @@
+DOM tree:
+
+  building blocks:
+    internal node: tags, can be called tag node.
+    leaf node: texts, images, or hyperlinks.
+
+  * Only interested in tag:body and its children.
+    :. ignore other nodes.
+
+  TODO on DOM trees:
+   - We can already get DOM trees using lxml.html.etree
+   - but, we must only consider data at and under body.
+
+
+
+Style Tree (ST):
+
+  building blocks:
+    style node(Es, n): represents a layout or presentation style,
+                       which has two components.
+            Es: is a sequence of element nodes, and
+            n: is the number of pages that has this
+            particular style at this node level.
+
+            TODO on style nodes:
+             - decide whether sequences of element nodes should
+               be just a string, i.e. "P-IMG-P-A-". Or another
+               data structure.
+             - Denoting style nodes in a dictionary using their
+               string representation, i.e. "P-IMG-P-A-".
+
+
+    element node(TAG, Attr, Ss): corresponds to the tag node in
+                                DOM tree.
+            TAG: the element's tag name, string.
+            Attr: list of display attributes of TAG
+            Ss: list of style nodes below current E node.
+
+            TODO on element nodes:
+             - Denoting element nodes using their TAGs.
+             - there should be a way to differentiate a leaf
+               node from an internal node after conversion.
+
+  methods:
+    add_page(tree): takes a new page's DOM tree and resets its root
+                    to the first tag: Body. Then, iterates through it
+                    adding new element and/or style nodes.
