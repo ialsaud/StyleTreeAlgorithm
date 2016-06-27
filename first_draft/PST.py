@@ -1,4 +1,3 @@
-from Node import Node
 import urllib2
 from lxml import html
 
