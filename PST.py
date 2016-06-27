@@ -1,7 +1,8 @@
 from Node import Node
 import urllib2
 from lxml import html
-
+from BuildSST import SST
+import BuildSST
 
 class PST():
     """
@@ -21,14 +22,15 @@ class PST():
             new_child = self.build(e)
             if self.is_comment(new_child) is False: ## add to children if it's not comment node only
                 children.append(new_child)
-        children_ = [1,children]
 
         if root.text is not None:
             root.text = root.text.encode('ascii', 'ignore').decode('ascii') ##some of the text provided mosut be encoded
         else: ## Replace the None content with empty string
             root.text = ''
 
-        return Node(root.tag, root.attrib, children_, root.text)
+        return Node(root.tag, root.attrib, children, root.text)
+
+
 
     """
     checks whether the node is a comment
@@ -42,41 +44,49 @@ class PST():
 
 
 ########## SST stuf ############
-def increment(children_set):
-    children_set[0] += 1
+
 
 """
-def BuildSST(SST, root2): ## this should be an SST with a PST
+def BuildSST_(root, root1):
 
-    if SST.children == None:
+    root.children = [ [ 1,root1.children]  ]
 
-
-    if root1.children[1] == root2.children[1]:
-        root1.children = [[1]]
-    elif root1.children != root2.children:
-        root1.children.append(root2.children) ## does this make a copy of children_set2
-    for child1, child2 in zip(root1.children[1], root1.children[1]): ##loops in parallel
-        comparator(child1, child2)
+    for child, child1 in zip(root.children[0][1], root1.children):
+        BuildSST_(child,child1)
 """
 
 
+def BuildSST(SS, root1): ## this should be an SST with a PST
 
+    flag = 0
+    for child_set in SS.children: #    [ [    ], [   ] , .... ] || child_set = [count, [set]]
+        if child_set[1] == root1.children:
+            flag = 1
+            child_set[0] += 1
+            for child, child_new in zip(child_set[1],root1.children):
+                BuildSST(child,child_new)
+            break
 
-
+    if flag == 0:
+        SS.children.append([1,root1.children])
 
 
 ########## TEST ############
+
 x = PST('http://www.securityfocus.com/bid/83265')
 x2 = PST('http://www.securityfocus.com/bid/83265')
 y = PST('https://3.basecamp.com/3273604/projects/481759')
 z = PST('http://www.securityfocus.com/bid/69077')
 
-print x.root
-SST = Node(x.root.tag, x.root.tag, None, x.root.text) ## empty node with the same information as one of the roots (all roots all the same)
-print x.node
 
+z = PST('http://www.securityfocus.com/bid/69077')
+SS = SST('http://www.securityfocus.com/bid/83265')
 
+#BuildSST_(SST.root, x.root)
+BuildSST(SS.root, z.root)
+BuildSST(SS.root, z.root)
 
+print SS.root
 
 
 

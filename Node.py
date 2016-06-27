@@ -8,14 +8,13 @@ class Node:
         self.tag = tag
         self.attrib = attrib
         self.content = content
-        self.children = children
-
+        self.children = children #array of nodes
     """
     prints the tree with indentations to indicate depth or level
     """
     def __repr__(self, level=0):
         ret = ("\t"*level) + self.print_node() + "\n"
-        for child in self.children[1]:
+        for child in self.children[0][1]: ## for PST self.children
             ret += child.__repr__(level+1)
         return ret
 
@@ -26,7 +25,7 @@ class Node:
     def __eq__(self, other):
         if self.tag != other.tag:
             return False
-        if not (compare_dictionaries(self.attrib, other.attrs)):
+        if not (compare_dictionaries(self.attrib, other.attrib)):
             return False
         """
         for child1, child2 in zip(self.children[1], other.children[1]):
@@ -45,11 +44,10 @@ class Node:
     """
     def print_node(self):
         children =[]
-        for child in self.children[1]:
+        for child in self.children[0][1]: ## for PST self.children
             children.append(child.tag)
-        count = self.children[0]
-
-        return "(%s, %s)" % (self.tag, self.content)
+        count = self.children[0][0] # for PST no count
+        return "(%s, %s, %d)" % (self.tag, children, count)
 
     """
     this method compares the node attribute dictionaries
