@@ -1,8 +1,9 @@
-from Node import Node
 import urllib2
 from lxml import html
+from BuildSST import SST
+import BuildSST
 
-class SST():
+class PST():
     """
     # This module contains the building blocks of the page Style Tree.
     """
@@ -25,8 +26,9 @@ class SST():
             root.text = root.text.encode('ascii', 'ignore').decode('ascii') ##some of the text provided mosut be encoded
         else: ## Replace the None content with empty string
             root.text = ''
-        children = [[1,children]]
+
         return Node(root.tag, root.attrib, children, root.text)
+
 
 
     """
@@ -40,8 +42,17 @@ class SST():
             return False
 
 
+########## SST stuf ############
 
 
+"""
+def BuildSST_(root, root1):
+
+    root.children = [ [ 1,root1.children]  ]
+
+    for child, child1 in zip(root.children[0][1], root1.children):
+        BuildSST_(child,child1)
+"""
 
 
 def BuildSST(SS, root1): ## this should be an SST with a PST
@@ -58,3 +69,51 @@ def BuildSST(SS, root1): ## this should be an SST with a PST
     if flag == 0:
         SS.children.append([1,root1.children])
 
+
+########## TEST ############
+
+x = PST('http://www.securityfocus.com/bid/83265')
+x2 = PST('http://www.securityfocus.com/bid/83265')
+y = PST('https://3.basecamp.com/3273604/projects/481759')
+z = PST('http://www.securityfocus.com/bid/69077')
+
+
+z = PST('http://www.securityfocus.com/bid/69077')
+SS = SST('http://www.securityfocus.com/bid/83265')
+
+#BuildSST_(SST.root, x.root)
+BuildSST(SS.root, z.root)
+BuildSST(SS.root, z.root)
+
+print SS.root
+
+
+
+########## Scratch ##########
+
+"""
+        print (x.root)
+
+        comparator(x.root,y.root)
+
+        print x.root
+
+"""
+
+"""
+        from lxml import html
+        import urllib2
+
+        A = urllib2.urlopen("url")
+        root = html.from_string(A.read())
+        root.text_content #prints the whole pag
+"""
+
+"""
+        import inspect
+        print inspect.getargspec(fromstring)
+        shows the arguments of a method
+
+        dir(fromstring)
+        shows the methods
+"""
