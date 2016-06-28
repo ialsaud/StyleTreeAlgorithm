@@ -1,6 +1,7 @@
 import urllib2
 from lxml import etree
 
+
 class StyleNode:
     def __init__(self, elements, page_occurrences=1):
         # string value of all elements i.e. "table-img-table-"
@@ -9,7 +10,7 @@ class StyleNode:
         self.elements = elements
         # number of pages style node occurred
         self.occurr = page_occurrences
-        print '(%s)-(%d)' % (self.key, self.occurr)
+        #print '(%s)-(%d)' % (self.key, self.occurr)
 
     def __str__(self):
         return self.key
@@ -22,17 +23,6 @@ class StyleNode:
 
     def increment(self):
         self.occurr += 1
-
-    def overwrite_elements_with(self, element):
-
-        stemp = []
-        for e in element.iterchildren():
-            content = None
-            if len(e) == 0:
-                content = e.text
-                stemp.append(ElementNode(e.tag, e.attrib, [StyleNode([])], content=content).overwrite_children(e))
-        self.elements = stemp
-        self.key = style_key_generator(self.elements)
 
 
 def style_key_generator(elements):
@@ -78,15 +68,6 @@ class ElementNode:
             else:
                 self.children.append(e2)
 
-    def overwrite_children(self, root):
-        stemp = []
-        for e in root.iterchildren():
-            stemp.append(ElementNode(e.tag, e.attrib, [StyleNode([]).overwrite_elements_with(e)]))
-
-        new_element = ElementNode(root.tag, root.attrib, [StyleNode(stemp)])
-        new_style = StyleNode([new_element])
-        self.children = [new_style]
-
 
 class PageTree:
     def __init__(self, url):
@@ -102,8 +83,27 @@ class PageTree:
                 break
 
         # building
-        self.root = ElementNode('root', {}, [StyleNode([])])
-        self.root.overwrite_children(self.dom)
+        self.root = ElementNode('root', {}, build_style(self.dom))
+
+
+def build_style(root):
+    if len(root) == 0:
+        # case it's a leaf
+        return [StyleNode([ElementNode(root.tag, root.attrib, [StyleNode([])], content=root.text)])]
+
+    temp = []
+    for e in root.iterchildren():
+        temp.append(build_element(e))
+
+    return [StyleNode(ElementNode(root.tag, root.attrib, [temp]))]
+
+def build_element(root):
+    if len(root) == 0:
+        return ElementNode(root.tag, root.attrib, [StyleNode([])])
+
+    for e in root.iterchildren():
+
+    ElementNode(root.tag, root.attrib, build_style(e))
 
 
 class StyleTree:
