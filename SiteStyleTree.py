@@ -1,7 +1,6 @@
 import urllib2
 from lxml import etree
 
-
 class StyleNode:
     def __init__(self, elements, page_occurrences=1):
         # string value of all elements i.e. "table-img-table-"
@@ -10,8 +9,12 @@ class StyleNode:
         self.elements = elements
         # number of pages style node occurred
         self.occurr = page_occurrences
+        print '(%s)-(%d)' % (self.key, self.occurr)
 
     def __str__(self):
+        return self.key
+
+    def __repr__(self):
         return self.key
 
     def __eq__(self, other):
@@ -21,9 +24,13 @@ class StyleNode:
         self.occurr += 1
 
     def overwrite_elements_with(self, element):
+
         stemp = []
         for e in element.iterchildren():
-            stemp.append(ElementNode(e.tag, e.attrib, [StyleNode([]).overwrite_elements_with(e)]))
+            content = None
+            if len(e) == 0:
+                content = e.text
+                stemp.append(ElementNode(e.tag, e.attrib, [StyleNode([])], content=content).overwrite_children(e))
         self.elements = stemp
         self.key = style_key_generator(self.elements)
 
@@ -31,7 +38,7 @@ class StyleNode:
 def style_key_generator(elements):
     key = ''
     for e in elements:
-        key += e + '-'
+        key += (e.tag+'-')
     return key
 
 
@@ -47,6 +54,9 @@ class ElementNode:
         self.content = content
 
     def __str__(self):
+        return self.tag.__str__()
+
+    def __repr__(self):
         return self.tag.__str__()
 
     def __eq__(self, other):
@@ -73,7 +83,8 @@ class ElementNode:
         for e in root.iterchildren():
             stemp.append(ElementNode(e.tag, e.attrib, [StyleNode([]).overwrite_elements_with(e)]))
 
-        new_style = StyleNode(stemp)
+        new_element = ElementNode(root.tag, root.attrib, [StyleNode(stemp)])
+        new_style = StyleNode([new_element])
         self.children = [new_style]
 
 
