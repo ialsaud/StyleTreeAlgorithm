@@ -1,4 +1,5 @@
 import urllib2
+from io import BytesIO
 from lxml import etree
 
 
@@ -9,8 +10,7 @@ class StyleNode:
         # list of node elements
         self.elements = elements
         # number of pages style node occurred
-        self.occurr = page_occurrences
-        #print '(%s)-(%d)' % (self.key, self.occurr)
+        self.occur = page_occurrences
 
     def __str__(self):
         return self.key
@@ -21,15 +21,21 @@ class StyleNode:
     def __eq__(self, other):
         return self.key == other.key
 
+    def __getitem__(self, index):
+        return self.elements[index]
+
+    def __len__(self):
+        return len(self.elements)
+
     def increment(self):
-        self.occurr += 1
+        self.occur += 1
 
 
 def style_key_generator(elements):
     key = ''
     for e in elements:
         key += (e.tag+'-')
-    return key
+    return key[0:-1]
 
 
 class ElementNode:
@@ -53,7 +59,7 @@ class ElementNode:
         return self.tag.__str__() == other.tag.__str__()
 
     # functions __getitem__ and __len__
-    # make ElementNode iterable.
+    # make ElementNode iterable. TODO this is not necessary for now
     def __getitem__(self, index):
         return self.children[index]
 
@@ -61,54 +67,62 @@ class ElementNode:
         return len(self.children)
 
     def add_new_elements(self, other):
-        for e1, e2 in zip(self, other):
-            if e1 == e2:
-                e1.increment()
-                e1.add_new_elements(e2)
-            else:
-                self.children.append(e2)
+        if len(self) == 0 or len(other) == 0:
+            for s in other:
+                self.children.append(s)
+        else:
+            for s1, s2 in zip(self, other):
+                    if s1 == s2:    # table-
+                        s1.increment()
+                        for e1, e2 in zip(s1, s2):
+                            e1.add_new_elements(e2)
+                    else:
+                        self.children.append(s2)
 
 
 class PageTree:
     def __init__(self, url):
         # downloading and converting to DOM tree
         page_string = urllib2.urlopen(url)
+
+        page_string = page_string.read()
+        page_string = page_string.replace("</br>", "")
+        page_string = page_string.replace("<br/>", "")
+        page_string = page_string.replace("<br>", "")
+
         parser = etree.HTMLParser(remove_comments=True)
-        tree = etree.parse(page_string, parser)
+        tree = etree.parse(BytesIO(page_string), parser)  # DOM tree as etree
 
-        # setting tag: Body as root.
-        for e in tree.iter():
+        for e in tree.getroot().iterchildren():
             if e.tag == 'body':
-                self.dom = e
-                break
+                body = e
 
-        # building
-        self.root = ElementNode('root', {}, build_style(self.dom))
+        body_E = self.build_0(body)  # takes etree root (body) returns Element Node Body
+        self.build_1(body_E)  # takes Element Node body, changes children to StyleNodes
+        self.root = ElementNode('root', {}, [StyleNode([body_E])], None)
 
+    def build_0(self, root): # takes e-tree node
+        children = []
 
-def build_style(root):
-    if len(root) == 0:
-        # case it's a leaf
-        return [StyleNode([ElementNode(root.tag, root.attrib, [StyleNode([])], content=root.text)])]
+        for e in root.iterchildren():  # iterate etree object
+            new_child = self.build_0(e)  # returns element nodes
+            children.append(new_child)
 
-    temp = []
-    for e in root.iterchildren():
-        temp.append(build_element(e))
+        if len(root) == 0:
+            if root.tag == 'img':
+                return ElementNode(root.tag, root.attrib, children, root.attrib.get('src', None))
+            return ElementNode(root.tag, root.attrib, children, root.text)
+        return ElementNode(root.tag, root.attrib, children)
 
-    return [StyleNode(ElementNode(root.tag, root.attrib, [temp]))]
-
-def build_element(root):
-    if len(root) == 0:
-        return ElementNode(root.tag, root.attrib, [StyleNode([])])
-
-    for e in root.iterchildren():
-
-    ElementNode(root.tag, root.attrib, build_style(e))
+    def build_1(self, E):    # takes Element Node (root of SST/PST)
+        E.children = [StyleNode(E.children)]
+        for e in E.children[0].elements:
+            self.build_1(e)
 
 
 class StyleTree:
     def __init__(self):
-        self.root = ElementNode('root', {}, [StyleNode([])])
+        self.root = ElementNode('root', {}, [])
 
     def add_page(self, page_tree):
         self.root.add_new_elements(page_tree.root)
