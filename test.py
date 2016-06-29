@@ -1,26 +1,31 @@
 from SiteStyleTree import *
 
-def print_PST(root, level=0):
-    ret = ("\t"*level) + print_Enode(root) + "\n"
+
+def print_tree(root, level=0):
+    ret = ("\t"*level) + print_enode(root) + "\n"
     for style in root.children:
         for E in style.elements:
-            ret += print_PST(E, level+1)
+            ret += print_tree(E, level + 1)
     return ret
 
-def print_Enode(root):
+
+def print_enode(root):
     count = []
     for style in root.children:
-        count.append((style.key,style.occur))
+        count.append((style.key, style.occur))
+    if root.content is not None:
+        return "(%s, %s, %s)" % (root.tag, count, root.content)
     return "(%s, %s)" % (root.tag, count)
 
-PST = PageTree('http://www.securityfocus.com/bid/83265')
-print print_PST(PST.root)
+
+x1 = PageTree('http://www.securityfocus.com/bid/83265')
+x2 = PageTree('http://www.securityfocus.com/bid/83265')
+print print_tree(x2.root)
 
 
-#SST = StyleTree()
-#SST.add_page(PST)
+SST = StyleTree()
+SST.add_page(x1)
+SST.add_page(x2)
+print(print_tree(SST.root))
 
-
-##print SST.children[0].occur
-
-
+# print SST.children[0].occur
